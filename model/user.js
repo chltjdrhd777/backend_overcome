@@ -50,28 +50,20 @@ userSchema.pre("save", function (next) {
   }
 });
 
-/* userSchema.methods.comparePassword = function (plainPassword, callback) {
-  bcrypt.compare(plainPassword, this.password, function (err, ismatched) {
-    if (err) return callback(err);
-    callback(null, ismatched);
-  });
-}; */
-
 userSchema.methods.comparePassword = function (plainPassword, callback) {
   bcrypt
     .compare(plainPassword, this.password)
-    .then((ismatch) => callback(null, ismatch))
-    .catch((err) => callback(err));
+    .then((ismatch) => callback(ismatch));
 };
 
 userSchema.methods.generateToken = function (callback) {
   let user = this;
   let token = jwt.sign(user._id.toHexString(), "secret");
   user.token = token;
-  user.save(function (err, user) {
-    if (err) return callback(err);
-    callback(null, user);
-  });
+  user
+    .save()
+    .then((tokenUpdatedUser) => callback(tokenUpdatedUser))
+    .catch((err) => err);
 };
 
 userSchema.static.findByToken = function (token, callback) {

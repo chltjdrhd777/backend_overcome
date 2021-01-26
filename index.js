@@ -47,22 +47,16 @@ app.post("/api/users/login", (req, res) => {
   User.findOne({ email: req.body.email }, (err, user) => {
     if (!user) return res.json({ message: "there is no user", err });
 
-    /*  user.comparePassword(req.body.password, (err, ismatched) => {
-      if (!ismatched) return res.json({ loginstate: false, err });
-      return res.json({ loginstate: true, ismatched });
-    }); */
-    user.comparePassword(req.body.password, (err, ismatch) => {
+    user.comparePassword(req.body.password, (ismatch) => {
       if (!ismatch)
-        return res.json({ loginstate: false, message: "wrong password", err });
+        return res.json({ loginstate: false, message: "wrong password" });
 
-      user.generateToken((err, user) => {
-        if (err) return res.status(400).send(err);
-        res
-          .cookie("x_authorized", user.token)
-          .status(200)
-          .json({ message: "cookie is generated", cookie: user });
+      user.generateToken((tokenUpdatedUser) => {
+        res.cookie("x_author", tokenUpdatedUser.token).status(200).json({
+          logstate: "successfully logged",
+          tokenUpdatedUser,
+        });
       });
-      return res.json({ loginstate: true, message: "successfully logged" });
     });
   });
 });
