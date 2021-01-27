@@ -23,13 +23,25 @@ mongoose
 //? get/////////////////////////////////////////////
 app.get("/api/users/auth", auth, (req, res) => {
   res.status(200).json({
-    _id: req.id,
+    _id: req.checkedUser.id,
     isAuth: true,
-    email: req.user.email,
-    lastName: req.user.lastName,
-    role: req.user.role,
-    name: req.user.name,
+    email: req.checkedUser.email,
+    lastName: req.checkedUser.lastName,
+    role: req.checkedUser.role,
+    name: req.checkedUser.name,
   });
+});
+
+app.get("/api/users/logout", auth, (req, res) => {
+  User.findOneAndUpdate(
+    { _id: req.checkedUser._id },
+    { token: "" },
+    (err, doc) => {
+      if (err) return res.json({ message: "you can't log out", err });
+
+      return res.status(200).send({ success: true });
+    }
+  );
 });
 
 //? post!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -61,4 +73,8 @@ app.post("/api/users/login", (req, res) => {
   });
 });
 
-app.listen(5050);
+const port = process.env.PORT || 5050;
+
+app.listen(port, ()=>{
+  console.log(port)
+});

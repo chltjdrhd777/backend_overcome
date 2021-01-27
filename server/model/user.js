@@ -66,12 +66,10 @@ userSchema.methods.generateToken = function (callback) {
     .catch((err) => err);
 };
 
-userSchema.static.findByToken = function (token, callback) {
+userSchema.statics.findByToken = function (token, callback) {
   let user = this; // in this time, this = schema itself
   jwt.verify(token, "secret", function (err, decoded_user_id) {
-    if (err) throw err;
-
-    user.findOne({ _id: decoded_user_id, token: token }).then((err, user) => {
+    user.findOne({ _id: decoded_user_id, token: token }, function (err, user) {
       if (err) return callback(err);
       callback(null, user);
     });
